@@ -6,7 +6,8 @@ require 'mechanize'
 #
 # Examples
 #
-#   art = Articulo.new('La Nación', 'Las Vegas', 'En las vegas hay casinos', 'Carlos', '20 de agosto de 1999')
+#   art = Articulo.new('La Nación', 'Las Vegas', 'En las vegas hay casinos',
+#                       'Carlos', '20 de agosto de 1999')
 class Articulo
   # Variable de clase para contar cantidad de articulos
   @@cant_articulos
@@ -106,10 +107,10 @@ class Scrapper
     # lista de proxys http://www.ip-adress.com/proxy_list/
 
     mechanize = Mechanize.new
-    mechanize.set_proxy('212.110.17.79', 8080)
+    # mechanize.set_proxy('58.96.182.222', 8080)
     mechanize.user_agent_alias = "Windows Mozilla"
 
-    while @a < 2014 do
+    while @a < 2015 do
       # para recorrer articulos de la nación tengo que respetar
       # el siguiente formato:
       # http://servicios.lanacion.com.ar/archivo-f25/03/2001
@@ -124,20 +125,27 @@ class Scrapper
       # fd con d de 01 a 31
       # m con m de 01 a 12
       # a de 1996 a 2014
-
       main_page = mechanize.get(link)
 
-      link = main_page.link_with(:text => 'Ver más')
-      section_page = link.click
-      # Una vez que entré en la sección puedo ver uno por uno
-      # los articulos
-      link = section_page.at('.acumulados h3')
-      puts link.text
-      art_page = mechanize.click link.text
-      puts art_page.uri
-      # Creo un objeto para la clase art_{diario} y scrapeo
-      art = ArtNacion.new(art_page, 'La Nacion')
-      art.scrap
+
+      links = main_page.links_with(:text => 'Ver más')
+      puts link
+      if !links.empty?
+        links.each do |link|
+          section_page = link.click
+          # Una vez que entré en la sección puedo ver uno por uno
+          # los articulos
+          art_links = section_page.search('.acumulados h3 a')
+          puts art_links.size
+          art_links.each do |art_link|
+            art_page = mechanize.click mechanize.get(art_link["href"])
+            puts art_page.uri
+            # Creo un objeto para la clase art_{diario} y scrapeo
+            art = ArtNacion.new(art_page, 'La Nacion')
+            art.scrap
+          end
+        end
+      end
       # puts art.to_json
       #avanza al próximo articulo
       self.avanzar
