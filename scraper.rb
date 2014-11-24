@@ -1,5 +1,6 @@
 require 'json'
 require 'mechanize'
+require 'open-uri'
 
 
 # Public : clase para las notas de los diarios.
@@ -107,7 +108,7 @@ class Scrapper
     # lista de proxys http://www.ip-adress.com/proxy_list/
 
     mechanize = Mechanize.new
-    # mechanize.set_proxy('58.96.182.222', 8080)
+    mechanize.set_proxy('58.96.182.222', 8080)
     mechanize.user_agent_alias = "Windows Mozilla"
 
     while @a < 2015 do
@@ -131,6 +132,8 @@ class Scrapper
       links = main_page.links_with(:text => 'Ver más')
       puts link
       if !links.empty?
+        # output = File.new("lnol-f#{@d_s}/#{@m_s}/#{@a_s}.json", "w+")
+        output = File.new "lnol-f#{@d_s}-#{@m_s}-#{@a_s}.json", "w"
         links.each do |link|
           section_page = link.click
           # Una vez que entré en la sección puedo ver uno por uno
@@ -143,10 +146,11 @@ class Scrapper
             # Creo un objeto para la clase art_{diario} y scrapeo
             art = ArtNacion.new(art_page, 'La Nacion')
             art.scrap
+            output.puts art.to_json
           end
         end
+        output.close
       end
-      # puts art.to_json
       #avanza al próximo articulo
       self.avanzar
     end
