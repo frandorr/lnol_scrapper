@@ -108,7 +108,7 @@ class Scrapper
     # lista de proxys http://www.ip-adress.com/proxy_list/
 
     mechanize = Mechanize.new
-    mechanize.set_proxy('58.96.182.222', 8080)
+    mechanize.set_proxy('195.154.233.59', 3128)
     mechanize.user_agent_alias = "Windows Mozilla"
 
     while @a < 2015 do
@@ -182,5 +182,5 @@ class ArtNacion < Articulo
   end
 end
 
-crawler = Scrapper.new 2, 1, 1996
+crawler = Scrapper.new 1, 1, 1996
 crawler.scrap
